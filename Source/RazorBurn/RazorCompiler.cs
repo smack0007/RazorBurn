@@ -48,6 +48,7 @@ namespace RazorBurn
             this.ReferencedAssemblies.Add("mscorlib.dll");
             this.ReferencedAssemblies.Add("System.dll");
             this.ReferencedAssemblies.Add("System.Core.dll");
+            this.ReferencedAssemblies.Add("System.Web.dll"); // TODO: Make this reference not be automatic.
             this.ReferencedAssemblies.Add("Microsoft.CSharp.dll");
         }
                 

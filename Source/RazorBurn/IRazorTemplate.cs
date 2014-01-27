@@ -9,4 +9,9 @@ namespace RazorBurn
     public interface IRazorTemplate
     {
     }
+
+    public interface IRazorTemplate<T> : IRazorTemplate
+    {
+        string Run(T model);
+    }
 }

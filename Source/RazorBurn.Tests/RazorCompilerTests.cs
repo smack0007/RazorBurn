@@ -8,37 +8,35 @@ using System.Threading.Tasks;
 namespace RazorBurn.Tests
 {
     [TestFixture]
-    public class SimpleTests : RazorBurnTests
+    public class RazorCompilerTests : RazorBurnTests
     {
         [Test]
         public void Empty_String_Compiles()
         {
             ListErrors(() =>
-                {
-                    RazorCompiler compiler = new RazorCompiler(RazorLanguage.CSharp);
-                    var template = compiler.Compile<TestRazorTemplate<string>>("");
-                });
+            {
+                RazorCompiler compiler = new RazorCompiler(RazorLanguage.CSharp);
+                var template = compiler.Compile<TestRazorTemplate<string>>("");
+            });
         }
 
         [Test]
-        public void Echo_Script()
+        public void CSharp_Echo_Script_Compiles()
         {
             ListErrors(() =>
             {
                 RazorCompiler compiler = new RazorCompiler(RazorLanguage.CSharp);
                 var template = compiler.Compile<TestRazorTemplate<string>>("@Model");
-                Assert.AreEqual("Hello World!", template.Run("Hello World!"));
             });
         }
 
         [Test]
-        public void Echo_Script_In_Visual_Basic()
+        public void VisualBasic_Echo_Script_Compiles()
         {
             ListErrors(() =>
             {
                 RazorCompiler compiler = new RazorCompiler(RazorLanguage.VisualBasic);
                 var template = compiler.Compile<TestRazorTemplate<string>>("@Model");
-                Assert.AreEqual("Hello World!", template.Run("Hello World!"));
             });
         }
     }

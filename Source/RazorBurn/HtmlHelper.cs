@@ -6,8 +6,11 @@ using System.Threading.Tasks;
 
 namespace RazorBurn
 {
-    public interface IEncodableString
+    public class HtmlHelper
     {
-        string Encode();
+        public HtmlString Raw(object value)
+        {
+            return new HtmlString(value);
+        }
     }
 }

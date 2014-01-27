@@ -6,14 +6,14 @@ using System.Threading.Tasks;
 
 namespace RazorBurn.Tests
 {
-    public abstract class TestRazorTemplate<T> : RazorTemplate<T>
+    public abstract class TestHtmlRazorTemplate<T> : HtmlRazorTemplate<T>
     {
         protected T Model
         {
             get;
             private set;
         }
-
+                
         protected override void SetModel(T model)
         {
             this.Model = model;

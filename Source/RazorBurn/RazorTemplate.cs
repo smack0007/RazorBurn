@@ -7,10 +7,10 @@ using System.Web;
 
 namespace RazorBurn
 {
-    public abstract class RazorTemplate<T> : IRazorTemplate
+    public abstract class RazorTemplate<T> : IRazorTemplate<T>
     {
         StringBuilder output;
-
+        
         protected virtual void SetModel(T model)
         {
         }
@@ -39,28 +39,22 @@ namespace RazorBurn
             return value.ToString();
         }
 
-        protected void Write(object value)
-        {
-            string output = null;
-
-            if (value is IEncodableString)
-            {
-                output = ((IEncodableString)value).Encode();
-            }
-            else
-            {
-                output = this.ConvertToString(value);
-            }
-
-            this.output.Append(output);
-        }
-
-        protected void WriteLiteral(object value)
+        protected void WriteInternal(string value)
         {
             this.output.Append(value);
         }
 
-        public virtual void WriteAttribute(string name, PositionTagged<string> prefix, PositionTagged<string> suffix, params AttributeValue[] values)
+        protected virtual void Write(object value)
+        {
+            this.WriteInternal(this.ConvertToString(value));
+        }
+
+        protected virtual void WriteLiteral(object value)
+        {
+            this.WriteInternal(value.ToString());
+        }
+
+        protected virtual void WriteAttribute(string name, PositionTagged<string> prefix, PositionTagged<string> suffix, params AttributeValue[] values)
         {
             bool first = true;
             bool wroteSomething = false;
@@ -124,5 +118,7 @@ namespace RazorBurn
                 }
             }
         }
+
+
     }
 }
