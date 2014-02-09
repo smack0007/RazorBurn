@@ -8,7 +8,7 @@ using System.Web;
 
 namespace RazorBurn
 {
-    public abstract class HtmlRazorTemplate<T> : RazorTemplate<T>
+    public abstract class HtmlRazorTemplate : RazorTemplate
     {
         protected HtmlHelper Html
         {

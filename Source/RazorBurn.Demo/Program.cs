@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace RazorBurn.Demo
 {
-    public abstract class HelloRazorTemplate : RazorTemplate<string>
+    public abstract class HelloRazorTemplate : RazorTemplate
     {
         protected string Name
         {
@@ -14,9 +14,11 @@ namespace RazorBurn.Demo
             private set;
         }
 
-        protected override void SetModel(string model)
+        public string Run(string name)
         {
-            this.Name = model;
+            this.Name = name;
+
+            return this.ExecuteTemplate();
         }
     }
 

@@ -7,27 +7,27 @@ using System.Web;
 
 namespace RazorBurn
 {
-    public abstract class RazorTemplate<T> : IRazorTemplate<T>
+    public abstract class RazorTemplate
     {
-        StringBuilder output;
-        
-        protected virtual void SetModel(T model)
+        protected StringBuilder Output
         {
+            get;
+            set;
         }
+        
+        /// <summary>
+        /// This method should not be called directly. Call on of the ExectueTemplate overloads instead.
+        /// </summary>
+        public abstract void Execute();
 
-        public string Run(T model)
+        protected string ExecuteTemplate()
         {
-            this.SetModel(model);
-   
-            this.output = new StringBuilder();
+            this.Output = new StringBuilder();
 
             this.Execute();
-            string result = this.output.ToString();
 
-            return result;
+            return this.Output.ToString();
         }
-
-        public abstract void Execute();
 
         private string ConvertToString(object value)
         {
@@ -41,7 +41,7 @@ namespace RazorBurn
 
         protected void WriteInternal(string value)
         {
-            this.output.Append(value);
+            this.Output.Append(value);
         }
 
         protected virtual void Write(object value)

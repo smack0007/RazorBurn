@@ -53,7 +53,7 @@ namespace RazorBurn
         }
                 
         public T Compile<T>(string template)
-            where T : IRazorTemplate
+            where T : RazorTemplate
         {
             Type baseTemplateType = typeof(T);
 
