@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Roslyn.Compilers.CSharp;
+using System;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.IO;
@@ -13,16 +14,16 @@ namespace RazorBurn
     {
         RazorCodeLanguage language;
         RazorEngineHost host;
+        IInternalRazorCompiler internalCompiler;
         
         public ISet<string> NamespaceImports
         {
             get { return this.host.NamespaceImports; }
         }
 
-        public ISet<string> ReferencedAssemblies
+        public AssemblyReferenceCollection ReferencedAssemblies
         {
-            get;
-            private set;
+            get { return this.internalCompiler.ReferencedAssemblies; }
         }
 
         public RazorCompiler(RazorLanguage language)
@@ -30,10 +31,12 @@ namespace RazorBurn
             if (language == RazorLanguage.VisualBasic)
             {
                 this.language = new VBRazorCodeLanguage();
+                this.internalCompiler = new RazorCompilerVisualBasic();
             }
             else
             {
                 this.language = new CSharpRazorCodeLanguage();
+                this.internalCompiler = new RazorCompilerCSharp();
             }
 
             this.host = new RazorEngineHost(this.language)
@@ -44,15 +47,14 @@ namespace RazorBurn
 
             this.host.NamespaceImports.Add("System");
 
-            this.ReferencedAssemblies = new HashSet<string>();
-            this.ReferencedAssemblies.Add("mscorlib.dll");
-            this.ReferencedAssemblies.Add("System.dll");
-            this.ReferencedAssemblies.Add("System.Core.dll");
-            this.ReferencedAssemblies.Add("System.Web.dll"); // TODO: Make this reference not be automatic.
-            this.ReferencedAssemblies.Add("Microsoft.CSharp.dll");
+            this.ReferencedAssemblies.Add("mscorlib");
+            this.ReferencedAssemblies.Add("System");
+            this.ReferencedAssemblies.Add("System.Core");
+            this.ReferencedAssemblies.Add("System.Web"); // TODO: Make this reference not be automatic.
+            this.ReferencedAssemblies.Add("Microsoft.CSharp");
         }
-                
-        public T Compile<T>(string template)
+
+        public string GenerateSource<T>(string template)
             where T : RazorTemplate
         {
             Type baseTemplateType = typeof(T);
@@ -69,35 +71,22 @@ namespace RazorBurn
             if (!generatorResults.Success)
             {
                 string[] errors = generatorResults.ParserErrors.Select(x => x.Message).ToArray();
-                throw new RazorCompilationException("There were errors while generating code for the template. See the Errors array.", errors);
+                throw new RazorCompilationException("There were errors while generating code for the template. See the Errors array.", template, errors);
             }
 
             CodeDomProvider provider = (CodeDomProvider)Activator.CreateInstance(this.language.CodeDomProviderType);
 
-            var compilerParameters = new CompilerParameters(new[] { typeof(RazorCompiler).Assembly.Location });
+            StringWriter sw = new StringWriter();
+            provider.GenerateCodeFromCompileUnit(generatorResults.GeneratedCode, sw, new CodeGeneratorOptions());
 
-            foreach (string assembly in this.ReferencedAssemblies)
-                compilerParameters.ReferencedAssemblies.Add(assembly);
-                        
-            if (!this.ReferencedAssemblies.Contains(baseTemplateType.Assembly.Location))
-                compilerParameters.ReferencedAssemblies.Add(baseTemplateType.Assembly.Location);
+            return sw.ToString();
+        }
 
-            var compilerResults = provider.CompileAssemblyFromDom(compilerParameters, generatorResults.GeneratedCode);
-
-            if (compilerResults.Errors.HasErrors)
-            {
-                string[] errors = compilerResults.Errors.Cast<CompilerError>().Select(x => x.ErrorText).ToArray();
-                throw new RazorCompilationException("There were errors while compiling the template. See the Errors array.", errors);
-            }
-
-            var templateType = compilerResults.CompiledAssembly.GetType("__CompiledRazorTemplates.Template");
-
-            if (templateType == null)
-            {
-                throw new MissingMemberException("Unable to find compiled template in assembly.");
-            }
-
-            return (T)Activator.CreateInstance(templateType);
+        public T Compile<T>(string template)
+            where T : RazorTemplate
+        {
+            string source = this.GenerateSource<T>(template);
+            return this.internalCompiler.Compile<T>(source);
         }
     }
 }

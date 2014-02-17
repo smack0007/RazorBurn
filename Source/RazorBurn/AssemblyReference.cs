@@ -6,25 +6,24 @@ using System.Threading.Tasks;
 
 namespace RazorBurn
 {
-    public class RazorCompilationException : Exception
+    public class AssemblyReference
     {
-        public string Source
+        public string Name
         {
             get;
             private set;
         }
 
-        public string[] Errors
+        public bool IsFile
         {
             get;
             private set;
         }
 
-        public RazorCompilationException(string message, string source, string[] errors)
-            : base(message)
+        public AssemblyReference(string name, bool isFile)
         {
-            this.Source = source;
-            this.Errors = errors;
+            this.Name = name;
+            this.IsFile = isFile;
         }
     }
 }

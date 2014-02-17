@@ -18,7 +18,7 @@ namespace RazorBurn
         /// <summary>
         /// This method should not be called directly. Call on of the ExectueTemplate overloads instead.
         /// </summary>
-        public abstract void Execute();
+        protected abstract void Execute();
 
         protected string ExecuteTemplate()
         {
