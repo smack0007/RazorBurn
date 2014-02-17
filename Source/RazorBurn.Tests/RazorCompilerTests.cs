@@ -15,27 +15,17 @@ namespace RazorBurn.Tests
         {
             ListErrors(() =>
             {
-                RazorCompiler compiler = new RazorCompiler(RazorLanguage.CSharp);
+                RazorCompiler compiler = new RazorCompiler();
                 var template = compiler.Compile<TestRazorTemplate<string>>("");
             });
         }
 
         [Test]
-        public void CSharp_Echo_Script_Compiles()
+        public void Echo_Script_Compiles()
         {
             ListErrors(() =>
             {
-                RazorCompiler compiler = new RazorCompiler(RazorLanguage.CSharp);
-                var template = compiler.Compile<TestRazorTemplate<string>>("@Model");
-            });
-        }
-
-        [Test]
-        public void VisualBasic_Echo_Script_Compiles()
-        {
-            ListErrors(() =>
-            {
-                RazorCompiler compiler = new RazorCompiler(RazorLanguage.VisualBasic);
+                RazorCompiler compiler = new RazorCompiler();
                 var template = compiler.Compile<TestRazorTemplate<string>>("@Model");
             });
         }

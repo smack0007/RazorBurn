@@ -26,7 +26,7 @@ namespace RazorBurn.Demo
     {
         public static void Main(string[] args)
         {
-            var compiler = new RazorCompiler(RazorLanguage.CSharp);
+            var compiler = new RazorCompiler();
             var template = compiler.Compile<HelloRazorTemplate>("Hello @Name.");
             Console.WriteLine(template.Run("Bob Freeman"));
 

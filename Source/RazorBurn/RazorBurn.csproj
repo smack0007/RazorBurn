@@ -73,14 +73,10 @@
     <Compile Include="HtmlHelper.cs" />
     <Compile Include="HtmlRazorTemplate.cs" />
     <Compile Include="HtmlString.cs" />
-    <Compile Include="IInternalRazorCompiler.cs" />
     <Compile Include="PositionTagged.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RazorCompilationException.cs" />
     <Compile Include="RazorCompiler.cs" />
-    <Compile Include="RazorCompilerCSharp.cs" />
-    <Compile Include="RazorCompilerVisualBasic.cs" />
-    <Compile Include="RazorLanguage.cs" />
     <Compile Include="RazorTemplate.cs" />
   </ItemGroup>
   <ItemGroup>

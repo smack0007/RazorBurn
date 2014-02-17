@@ -15,7 +15,7 @@ namespace RazorBurn.Tests
         {
             ListErrors(() =>
             {
-                RazorCompiler compiler = new RazorCompiler(RazorLanguage.CSharp);
+                RazorCompiler compiler = new RazorCompiler();
                 var template = compiler.Compile<TestHtmlRazorTemplate<string>>("@Model");
                 Assert.AreEqual("&lt;strong&gt;Hello World!&lt;/strong&gt;", template.Run("<strong>Hello World!</strong>"));
             });
@@ -26,7 +26,7 @@ namespace RazorBurn.Tests
         {
             ListErrors(() =>
             {
-                RazorCompiler compiler = new RazorCompiler(RazorLanguage.CSharp);
+                RazorCompiler compiler = new RazorCompiler();
                 var template = compiler.Compile<TestHtmlRazorTemplate<string>>("@Html.Raw(@Model)");
                 Assert.AreEqual("<strong>Hello World!</strong>", template.Run("<strong>Hello World!</strong>"));
             });
