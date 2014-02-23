@@ -78,6 +78,7 @@
     <Compile Include="RazorCompilationException.cs" />
     <Compile Include="RazorCompiler.cs" />
     <Compile Include="RazorTemplate.cs" />
+    <Compile Include="RazorTemplateFactory.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

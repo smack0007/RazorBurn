@@ -77,7 +77,7 @@ namespace RazorBurn
             return sw.ToString();
         }
 
-        public T Compile<T>(string template)
+        private Assembly CompileAssembly<T>(string template)
             where T : RazorTemplate
         {
             string source = this.GenerateSource<T>(template);
@@ -131,9 +131,22 @@ namespace RazorBurn
                     throw new RazorCompilationException("There were errors while compiling the template. See the Errors array.", source, result.Diagnostics.Select(x => x.ToString()).ToArray());
                 }
 
-                Assembly assembly = Assembly.Load(stream.ToArray());
-                return (T)assembly.CreateInstance("RazorBurn.CompiledTemplates.Template");
+                return Assembly.Load(stream.ToArray());
             }
+        }
+
+        public T Compile<T>(string template)
+            where T : RazorTemplate
+        {
+            Assembly assembly = this.CompileAssembly<T>(template);
+            return (T)assembly.CreateInstance("RazorBurn.CompiledTemplates.Template");
+        }
+
+        public RazorTemplateFactory<T> CompileFactory<T>(string template)
+           where T : RazorTemplate
+        {
+            Assembly assembly = this.CompileAssembly<T>(template);
+            return new RazorTemplateFactory<T>(assembly, "RazorBurn.CompiledTemplates.Template");
         }
     }
 }
