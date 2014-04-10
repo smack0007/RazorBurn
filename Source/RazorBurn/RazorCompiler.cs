@@ -1,5 +1,6 @@
-﻿using Roslyn.Compilers;
-using Roslyn.Compilers.CSharp;
+﻿using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
@@ -42,11 +43,11 @@ namespace RazorBurn
             this.host.NamespaceImports.Add("System");
 
             this.ReferencedAssemblies = new AssemblyReferenceCollection();
-            this.ReferencedAssemblies.Add("mscorlib");
-            this.ReferencedAssemblies.Add("System");
-            this.ReferencedAssemblies.Add("System.Core");
-            this.ReferencedAssemblies.Add("System.Web"); // TODO: Make this reference not be automatic.
-            this.ReferencedAssemblies.Add("Microsoft.CSharp");
+            this.ReferencedAssemblies.Add("mscorlib.dll");
+            this.ReferencedAssemblies.Add("System.dll");
+            this.ReferencedAssemblies.Add("System.Core.dll");
+            this.ReferencedAssemblies.Add("System.Web.dll"); // TODO: Make this reference not be automatic.
+            this.ReferencedAssemblies.Add("Microsoft.CSharp.dll");
         }
 
         public string GenerateSource<T>(string template)
@@ -84,7 +85,7 @@ namespace RazorBurn
 
             Type baseTemplateType = typeof(T);
 
-            SyntaxTree syntaxTree = SyntaxTree.ParseText(source);
+			var syntaxTree = CSharpSyntaxTree.ParseText(source);
 
             var executeMethod = syntaxTree.GetRoot().DescendantNodes()
                 .OfType<MethodDeclarationSyntax>()
@@ -92,27 +93,31 @@ namespace RazorBurn
                 .Single();
 
             var newExecuteMethod = executeMethod.WithModifiers(
-                Syntax.TokenList(
-                    Syntax.Token(SyntaxKind.ProtectedKeyword, Syntax.TriviaList(Syntax.Whitespace(" "))),
-                    Syntax.Token(SyntaxKind.OverrideKeyword, Syntax.TriviaList(Syntax.Whitespace(" ")))
+                SyntaxFactory.TokenList(
+					SyntaxFactory.Token(SyntaxFactory.TriviaList(), SyntaxKind.ProtectedKeyword, SyntaxFactory.TriviaList(SyntaxFactory.Whitespace(" "))),
+					SyntaxFactory.Token(SyntaxFactory.TriviaList(), SyntaxKind.OverrideKeyword, SyntaxFactory.TriviaList(SyntaxFactory.Whitespace(" ")))
                 ));
 
-            var newSyntaxTree = SyntaxTree.Create(syntaxTree.GetRoot().ReplaceNode(executeMethod, newExecuteMethod));
+			var temp = (CSharpSyntaxNode)syntaxTree.GetRoot().ReplaceNode(executeMethod, newExecuteMethod);
+			var newSyntaxTree = CSharpSyntaxTree.Create(temp);
 
             this.compileCount++;
             string assemblyName = "RazorBurn.CompiledTemplates.Template" + this.compileCount.ToString();
 
-            var compilation = Compilation.Create(assemblyName, new CompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+            var compilation = CSharpCompilation.Create(assemblyName)
+				.WithOptions(new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
 
             compilation = compilation
                 .AddReferences(new MetadataFileReference(Assembly.GetExecutingAssembly().Location))
                 .AddReferences(new MetadataFileReference(baseTemplateType.Assembly.Location));
 
+			var assemblyLocation = Path.GetDirectoryName(typeof(object).Assembly.Location);
+
             foreach (var assemblyReference in this.ReferencedAssemblies)
             {
                 if (!assemblyReference.IsFile)
                 {
-                    compilation = compilation.AddReferences(MetadataReference.CreateAssemblyReference(assemblyReference.Name));
+                    compilation = compilation.AddReferences(new MetadataFileReference(Path.Combine(assemblyLocation, assemblyReference.Name)));
                 }
                 else
                 {
